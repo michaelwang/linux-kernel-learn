@@ -1,0 +1,2 @@
+CompileFlags:   
+  Add: [-xc++, -std=c++17, -Wall, -Wno-missing-prototypes,-I/usr/src/linux-headers-5.15.0-84/include]
