@@ -44,3 +44,7 @@ CompileFlags:
   Add: [-xc++, -std=c++17, -Wall, -Wno-missing-prototypes,-I/usr/src/linux-headers-5.15.0-84/include]
 
 ```
+
+5. add `hello-2.c` file ,
+use module_init and module_exit for module init and clean
+
