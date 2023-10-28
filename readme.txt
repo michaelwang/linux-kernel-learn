@@ -48,3 +48,8 @@ CompileFlags:
 5. add `hello-2.c` file ,
 use module_init and module_exit for module init and clean
 
+6. add `hello-3.c` file
+__initdata は　Linux macroです、それの機能はデータが初期化するのことである。
+
+7. add `hello-4.c` file
+モージュルのコメントが追加するの方法が紹介すること。
