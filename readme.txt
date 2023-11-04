@@ -53,3 +53,34 @@ __initdata は　Linux macroです、それの機能はデータが初期化す�
 
 7. add `hello-4.c` file
 モージュルのコメントが追加するの方法が紹介すること。
+
+8. add `hello-5.c` file
+8.1 モージュルにパラメータが渡すの方法が紹介：
+ sudo make all 
+ sudo insmod hello-5.ko mystring="bebop" myintarray=-1 
+ sudo dmesg -t | tail -7 
+ sudo rmmod hello-5 
+ sudo insmod hello-5.ko mystring="supercalifragilisticexpialidous" myintarray=-1,-1
+ sudo dmesg -t | tail -7 
+ sudo rmmod hello-5 
+ sudo dmesg -t | tail -1 
+ sudo insmod hello-5.ko mylong=hello
+8.2  どうか複数ファルでモージュルになるの方法が紹介する
+
+```sh
+touch start.c 
+touch stop.c
+```
+
+```Makefile
+ obj-m += startstop.o
+ startstop-objs := start.o stop.o
+```
+
+```sh
+ sudo make all 
+ sudo insmod startstop.ko 
+ sudo dmesg | tail -7 
+ sudo rmmod startstop.ko  
+ sudo dmesg | tail -7 
+```
