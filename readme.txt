@@ -84,3 +84,9 @@ touch stop.c
  sudo rmmod startstop.ko  
  sudo dmesg | tail -7 
 ```
+
+9. avaliable functions to the module (5.2)
+hello.cファイルが追加する、その目的は、モージュル中に、
+kernel中の関数だけ使えることが説明する。
+gcc -Wall -o hello hello.c
+strace ./hello 
