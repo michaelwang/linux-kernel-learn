@@ -197,3 +197,82 @@ device.The column which speperate by the `,` means device type,
 the first number is the device number which recognized by the
 kernel, and the second number which is recognized by the device
 driver. 
+
+6 Character
+6.1 character device
+In linux kernel, it provides standard operation for communicate
+with the character hardware.The standard operation file is under
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/include/linux/fs.h,
+but the driver does not need to implement all those functions,
+for example the vedio driver doese not need to implement the directory
+operations. The not implement operations will be set null for nessary.
+There is some convinient ways to define struct.
+There are two methods to do this thing, such as the gcc extension and C99,
+detail information about how to do this , can read the below reference.
+P27 and  [gcc](https://gcc.gnu.org/onlinedocs/gcc/Designated-Inits.html).
+And the designated-Inits is the prefered way to do this.
+But in Linux kernel 5.4, an new way was introduced : proc_ops
+
+Kerneln中に、characterのディバスに標準の操作がある。それは
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/include/linux/fs.h,
+Driverが全部の操作関数が実装することが必要がない。
+それは実装しないの方法はNULLに割り当てることがあります。
+その標準のstructが簡単に実装することができる、２つの方法がある。
+まずの方法はGCCの拡大です。他の方法はgccのdesignated-initsです。それの具体的の
+使用資料はP27と[gcc](https://gcc.gnu.org/onlinedocs/gcc/Designated-Inits.html)に
+読んでことができる。
+
+(6.2)
+The file structure
+The device in the kernel is represented as file which is defined by include/linux/fs.h,
+the file can not been seen by program which is run in the user space.
+The normal file which is defined by the glibc which is can noly been seen by the program
+in the user space and can not been seen from the kernel.
+The device file content is not read by the driver, and the driver only read the struct which
+driver will the the struct eleswhere, and the device file type is inode, in program we usually
+call it `filp`.
+
+ディバスがkernel中にファイルに表示された、このファイルが include/linux/fs.hで新規することがあります。
+しかし、このファイルがユーザーの空間のプログラミングが見つかれない。
+普通のファイルがGLIBCで新規することがあります、このファイルがkernel中に見つかれない。
+ディバスのファイルの内容がdriverが読んでない、ただ、このファイルが中にstructのデータが読んで他の所に
+しようされる。このファイルの型はinodeである。
+
+(6.3)
+Register Character Device
+There are two ways to register driver into kernel,
+the first one is using below function
+```c
+int register_chrdev(unsigned int major, const char *name, struct, file_operations *fops);
+```
+the `const char *name` will be displayed in `/proc/devices`, if you did not the major number
+you can pass 0 into the function as `unsigned int major`, and the kernel will assign  a
+dynamic major number to you as the function's return value.
+The downside of this method is that you can not create the device in advance.
+The second way to create device is first to create `struct cdev` instance, and then use below
+method
+```c
+void cdev_init(struct cdev *cdev, const struct file_operations *fops);
+```
+to initialize the method and the below method to add the device to the kernel
+```c
+int cdev_add(struct cdev *p, dev_t dev, unsigned count);
+```
+
+新規のディバスがkernelに登録されることが２つ方法がある。
+まずは、次の関数が使用することができる
+```c 
+void cdev_init(struct cdev *cdev, const struct file_operations *fops);
+```
+この関数は短所のことがある、それはディバス先に登録されることができない。
+他の方法は`struct cdev`の型を使用することができる、
+cdevは実例が先にすることが必要です、後で、次の方法が使用する必要ことがあります。
+```c
+void cdev_init(struct cdev *cdev, const struct file_operations *fops);
+```
+to initialize the method and the below method to add the device to the kernel
+```c
+int cdev_add(struct cdev *p, dev_t dev, unsigned count);
+```
+cdev_initはディバスが初期化するの目的である、
+cdev_addはkernel中に追加するの目的である。
