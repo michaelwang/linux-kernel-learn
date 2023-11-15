@@ -276,3 +276,75 @@ int cdev_add(struct cdev *p, dev_t dev, unsigned count);
 ```
 cdev_initはディバスが初期化するの目的である、
 cdev_addはkernel中に追加するの目的である。
+
+
+(6.4)
+`rmmod` can be used to remove the module from kernel,
+however the root are not allowed to do what they want,
+if the root want to delete the modle from kernel but it is
+being used by other process, the error will occure.
+So in the kernel there are some mechnism to prevent this
+error situation.
+Kernel tract every module usage by count number, we can use
+`sudo lsmod` and `cat /proc/modules` to find the number,
+the second column is the number which is tracted by the kernel.
+
+`rmmod`はモージュルの削除するコマンドである、ただ、
+rootはモージュルに随分に削除することができない。
+モージュルは他のプログラミングに使われることがありますので。
+kernelはモージュルの使用する数が記録することがあります。
+この数は次のコマンドが探すことができる。
+```SH
+sudo lsmod
+```
+
+```sh
+cat /proc/modules
+```
+
+(6.5)
+This chapter is something about how to create device.
+There are something need to be watched out.
+1. In order prevent different process to open the same device in
+the same time, this chapter introduced lock mechnisem for device
+open and close. If the device is read by a process, the device
+is locked, and after the process is read over the device
+lock is released.
+2. The command `cat /dev/deviceName` can be executed
+when user want to read the device. The device need to register
+a read hook in the kernel, in order to response to such read operation.
+3. Because if the user want to read the content from device, the output
+content is need to be taken from the kernel to the user space, so we
+need to use system call to finish this task.
+the c file is chardev.c.
+
+この部分の内容はどうかディバスが新規することが説明しました。
+新しいディバスが新規する時に、注意事項があります。
+1. 同じくディバスが複数のプロセスが同時にアクセスすることが防ぐために、
+ロークが使われる必要ことがあります。もし、ディバスがあるプロセスが使用
+されることがあれば、ロークが使われることがあります。その後で、このプロセス
+がディバスのロークがリリースすることが必要ことがあります。
+2.ユーザーはディバスの内容が読んでが欲しいときに、
+コマンド`cat /dev/deviceName`が使われる必要ことがあります。
+ディバスのモージュル中に、システムの針が必要実装することがあります。
+
+(6.6) Writing Moduls for Multiple Kernel Versions
+we can use macro for finding the exact kernel version if you
+want to implement module for different version kernel .
+
+7 The /proc File System
+There is anothe way for kernel or device to send information
+to the process which it is the /proc filesystem. Unlike the
+real filesystem, the /proc filesystem is a memory index filesystem,
+and each file's inode information contains the file permission,
+device name.
+Also there are some system hook for the device to register if the
+device module wants to be communicate using the /proc way.
+
+kernelとディバスがプロセスに通信するの方法は他の方法があります、これは/procがです。
+普通のファイルのシステムが異なりますことがあります。/procはメーモンリのファイルシステムである。
+毎のinodeの情報はファイルの特権とファイルの内容が含むことがです。
+
+
+
+
