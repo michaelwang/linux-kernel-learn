@@ -345,6 +345,79 @@ kernelとディバスがプロセスに通信するの方法は他の方法が�
 普通のファイルのシステムが異なりますことがあります。/procはメーモンリのファイルシステムである。
 毎のinodeの情報はファイルの特権とファイルの内容が含むことがです。
 
+7.1 The proc_ops structure 
+The proc_ops which is introduced from Linux v5.6+ ,
+and it is the replacement for file_struct_op. In VFS
+the  file_struct_op struct has too many field to fill,
+and the code may be bloated, the proc_ops struct is the
+replacement for the file_stuct_op, and is also has better
+performance.
+
+proc_opsはkernel中に、新しいファイル関する操作方法である。
+この方法は良い性能がprovideすることがあります。
+
+7.2 Read and Write /proc file
+In Linux each process has it's own speperate memeory space,
+so if the process need to write data to kernel or the kernel
+need to write data to the user process we need to use below
+methods,
+get_user() and copy_from_user() are methods to read data from
+user process.
+copy_to_user() and put_user() are methods to write data to
+user process.
+the process need to pass the memory address which is the
+relative address to the segment.So the kernel need to use
+above method to get the user process memory segment.
+
+Linux中に、毎のプロセスは独立のメーモンリ空間があります。
+そして、もしkernelGはユーザーのプロセスが通信することが
+必要あれば、システムのAPIは使用されることがなければならない。
+get_user()とget_from_user()はkernelにユーザーのプロセスから
+ディターが読んで必要時に使用されるである。
+put_user()とcopy_to_user()はkernelから、ユーザーのプロセス
+のメーモンリの中に、ディターが書きされる時に使用されるである。
 
 
+## 7.3
+Linux provide way to register file system.Each file system
+has it's own way to handle file operaiton and inode operation.
+There is a struct inode_operation which hold a pointer to all
+of above functions.the innode_operation include pointer which
+to struct proc_ops, the proc_ops struct hold function such as
+procf_read() and procfs_write().
 
+The write and read role are reversed in kernel, because when the
+user want read something from the kernel, and the kernel need to
+write it out to the user space. when the user want to write something
+to the kernel, the kernel need to read the content from the user space.
+
+
+The difference between file operation and inode operation is that
+file operation only deal with the file content itselft, but the
+inode operation operate the file reference information, such as
+the file link.
+
+There is aslo permission function in the /proc file system.
+when the user want to read something from /proc filesystem,
+the permission will take place.
+
+Linuxシステムはファイルのシステムが新規することができます。
+毎のファイルのシステムが独立の方法がinodeとファル対する処理ことが
+あります。Pointerがあります全部の処理する関数が対することがあります。
+
+(7.4)
+In order to simplify the /proc file process , linux kernel
+provide start(), next(), stop() method for reading the /prof file
+in easily.
+
+start() method is called when /proc file begin to read,
+next() method return non-zero integer when there are still
+remaing contents to read.
+
+stop() is call when when next() return null.
+
+/procのファイルが簡単に読むことができるために、
+kernelはstart()、stop()、next()関数が提供することがあります。
+start()は/procのファイルがはじめに読むときに呼び出される。
+next()は非ゼロが戻るときに、意味はファルが他の内容待に読むことが表示される。
+stop()はnext()がゼロ戻るときに呼び出されるの方法である。
