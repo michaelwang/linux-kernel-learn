@@ -421,3 +421,130 @@ kernelはstart()、stop()、next()関数が提供することがあります。
 start()は/procのファイルがはじめに読むときに呼び出される。
 next()は非ゼロが戻るときに、意味はファルが他の内容待に読むことが表示される。
 stop()はnext()がゼロ戻るときに呼び出されるの方法である。
+
+##8 sysfs Intacting with your module
+
+sysfs allows you to interact with the kernel, this is can be
+usefully when you need to debug the module through kernel.
+
+```sh
+sudo insmod hello-sysfs.ko
+
+sudo cat /sys/kernel/mymodule/myvariable 
+0
+
+michael@mars:~/.../hello-1$ sudo echo "32" > /sys/kernel/mymodule/myvariable 
+bash: /sys/kernel/mymodule/myvariable: 許可がありません
+
+michael@mars:~/.../hello-1$ sudo dmesg | tail -10
+[21768.837482] hello_sysfs: loading out-of-tree module taints kernel.
+[21768.837538] hello_sysfs: module verification failed: signature and/or required key missing - tainting kernel
+[21768.838211] mymodule: initialised
+
+```
+sysfsはユーザーがモージュルに通信されることができる。
+これはモジュールのディバグときにとても便利がことがです。
+
+
+## 9 Talking To Device Files
+
+In linux we need to write or read data to device,
+the control of speeding to write or read is very nessary in talking to device.
+the `ioctl` tool is invented for this requirement.
+This chapter add `ioctl.c` file for this purpose demonstration.
+```
+sudo make     
+make -C /lib/modules/5.15.0-88-generic/build  M=/home/michael/develop/kernel/hello-1 modules
+make[1]: ディレクトリ '/usr/src/linux-headers-5.15.0-88-generic' に入ります
+  CC [M]  /home/michael/develop/kernel/hello-1/ioctl.o
+  MODPOST /home/michael/develop/kernel/hello-1/Module.symvers
+  CC [M]  /home/michael/develop/kernel/hello-1/ioctl.mod.o
+  LD [M]  /home/michael/develop/kernel/hello-1/ioctl.ko
+  BTF [M] /home/michael/develop/kernel/hello-1/ioctl.ko
+Skipping BTF generation for /home/michael/develop/kernel/hello-1/ioctl.ko due to unavailability of vmlinux
+make[1]: ディレクトリ '/usr/src/linux-headers-5.15.0-88-generic' から出ます
+
+michael@mars:~/.../hello-1$ sudo insmod ioctl.o  
+insmod: ERROR: could not insert module ioctl.o: Invalid module format
+```
+
+## System Call
+System call is another way to  comnunicate with the kernal.
+So far, we have know there are 3 ways to comunicate with the kernel.
+If we want to use the system call, we need first find the system call
+table, and find the api address which we want to call.
+The way to find system call table is a little difficult, because
+there are some security factor need to consider by the system.
+such as the api address can be randomized by system startup.
+The kernel will not export system call table since some version because
+of the misuse cases.So in order to call system api, we need to do some
+patches in the system.
+This chapater the author give us a example to explain how to use system call
+to monitor a specific user when he or she is open file in the linux. 
+
+
+システムのapiはkernelに対する通信する方法が使用される。
+今、３つの方法がkernelに対する通信する方法がわかりました。
+もし、システムのAPIが呼び出されるが欲しいあれば。
+
+
+
+## Blocking Process and threads.
+In kernel, we need to setup method to block some
+process which is reading a file but the file is reading
+by the other process.
+
+Simimarly, it is aslo import to block threads which in
+the same module are reading the shard resources but the
+resources is opend by other threads.
+
+
+## 12.1 Mutex
+
+In kernel module we need to setup method to
+avoid collisions in different module for
+share the same resources.
+
+
+## 12.2 Spinlock
+this thechenology is the code lock the cpu for a while,
+the code between the lock will ocupply the CPU 100%.
+but this should not be used in a long time.
+この技術はCPUにロークされて、ユーザーのコードが
+CPUに100%に使用されることがですありますので、
+続き時間は短くてほうがいいです。
+
+
+## Read And Lock
+the kernel provides eclusive reading and  writing technology.
+It is the special lock of spinlock.It is better to keep
+the code as short as possible because it will have bad effect
+on user experience.
+
+Question:
+What if other process do if the cpu is lock by current process?
+Wait? Sleep?
+
+
+Kernelは専用の読みロークと書きロークを提供することがあります。
+これは特別のspinlockの種類である。そして、短い時間が使用することがいいです。
+その為に、ユーザーはパソコンが使用するときにユーザーの経験がほうがいいです。
+
+
+## Atomic Read and write.
+In the multiple CPU archeteture, we need to operate the
+data in atomic ways.
+C11 provide the way to operate data in atomic, but it is
+not very work well with the kernel memeory model.
+
+マッチポオCPUの環境中に、ディターが原爆に操作する為に、
+原爆の方が使用される必要があります。
+
+## Replacing Print Macros
+in early day,  tty originally refers the hardware console,
+but now , in Linux it refers the ssh, xterm in X11 system.
+So tty pointer refers above things.
+
+以前、ttyはハードウェアのコントロールの指摘しました。
+今、TTYは、ssh, xtermのものが指摘します。
+そして、ttyの指針は上のものが指摘します。
