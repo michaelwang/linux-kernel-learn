@@ -2,7 +2,6 @@
  * kbleds.c - Blink keyboard leds until the module is unloaded.
  */
 
-#include <linux/console_struct.h> /*For vc_cons */
 #include <linux/init.h>
 #include <linux/kd.h> /* For KESETLED */
 #include <linux/module.h>
