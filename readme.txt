@@ -548,3 +548,20 @@ So tty pointer refers above things.
 以前、ttyはハードウェアのコントロールの指摘しました。
 今、TTYは、ssh, xtermのものが指摘します。
 そして、ttyの指針は上のものが指摘します。
+
+## 13.2 Flashing keyboards LEDs
+
+this chapter is somthing about the LED control related knowledge
+and the kernel time api. You can use kernel time api to control
+the LED hardware.
+The time api was improved during the versions.At first the user
+callback function was unsgined long pointer type to passed into the setup_timer function,
+but it is not safte because the acttacker will pass some evil code , and the setup_timer
+function can not exame the passed code. In the next versions, the unsgined long type was
+replaced by the time_list structure, which the type can be checked . 
+
+この篇はLEDとタイマーの関する知識を説明します。LEDはタイマーに制御されることができます。
+バージョンの歴史中に、タイマーのAPIは改善されたことがあります。以前、コールバック関数
+のポインタがsetup_timerの関数中に渡されたことがありますので、アタッカーは悪いコードがそれに渡すできる。
+続きのバージョンはコールバック関数がtime_list　structに変えされることがあります。
+これはチェックすることができます。
